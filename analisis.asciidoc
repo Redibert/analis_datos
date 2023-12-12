@@ -1,0 +1,175 @@
++*In[1]:*+
+[source, ipython3]
+----
+# Importa las librerías
+import pandas as pd
+import matplotlib.pyplot as plt
+from IPython.display import display
+from sklearn.model_selection import train_test_split
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+
+----
+
+
++*In[2]:*+
+[source, ipython3]
+----
+# Importa las librerías
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Especifica la ruta de tu archivo (reemplázala con la ruta correcta)
+ruta_del_archivo = 'D:\\coro\\DISTRITAL\\Trabajos\\TuTarea\\C# problema de porcentajes\\train.csv'
+
+# Lee la tabla desde el archivo
+tabla = pd.read_csv(ruta_del_archivo)
+
+# Muestra los primeros 20 datos
+primeros_10_datos = tabla.head(10)
+display(primeros_10_datos)
+
+----
+
+
++*Out[2]:*+
+----
+[cols=",,,,,,,,,,,,",options="header",]
+|===
+| |PassengerId |Survived |Pclass |Name |Sex |Age |SibSp |Parch |Ticket
+|Fare |Cabin |Embarked
+|0 |1 |0 |3 |Braund, Mr. Owen Harris |male |22.0 |1 |0 |A/5 21171
+|7.2500 |NaN |S
+
+|1 |2 |1 |1 |Cumings, Mrs. John Bradley (Florence Briggs Th... |female
+|38.0 |1 |0 |PC 17599 |71.2833 |C85 |C
+
+|2 |3 |1 |3 |Heikkinen, Miss. Laina |female |26.0 |0 |0 |STON/O2.
+3101282 |7.9250 |NaN |S
+
+|3 |4 |1 |1 |Futrelle, Mrs. Jacques Heath (Lily May Peel) |female |35.0
+|1 |0 |113803 |53.1000 |C123 |S
+
+|4 |5 |0 |3 |Allen, Mr. William Henry |male |35.0 |0 |0 |373450 |8.0500
+|NaN |S
+
+|5 |6 |0 |3 |Moran, Mr. James |male |NaN |0 |0 |330877 |8.4583 |NaN |Q
+
+|6 |7 |0 |1 |McCarthy, Mr. Timothy J |male |54.0 |0 |0 |17463 |51.8625
+|E46 |S
+
+|7 |8 |0 |3 |Palsson, Master. Gosta Leonard |male |2.0 |3 |1 |349909
+|21.0750 |NaN |S
+
+|8 |9 |1 |3 |Johnson, Mrs. Oscar W (Elisabeth Vilhelmina Berg) |female
+|27.0 |0 |2 |347742 |11.1333 |NaN |S
+
+|9 |10 |1 |2 |Nasser, Mrs. Nicholas (Adele Achem) |female |14.0 |1 |0
+|237736 |30.0708 |NaN |C
+|===
+----
+
+
++*In[13]:*+
+[source, ipython3]
+----
+# Calcular los porcentajes de supervivencia
+porcentajes_supervivencia = tabla['Survived'].value_counts(normalize=True) * 100
+print(f'Porcentaje de no supervivencia (0): {porcentajes_supervivencia[0]:.2f}%')
+print(f'Porcentaje de supervivencia (1): {porcentajes_supervivencia[1]:.2f}%')
+----
+
+
++*Out[13]:*+
+----
+Porcentaje de no supervivencia (0): 61.62%
+Porcentaje de supervivencia (1): 38.38%
+----
+
+
++*In[7]:*+
+[source, ipython3]
+----
+import pandas as pd
+from sklearn.model_selection import cross_val_score, train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+# Leer los datos
+# Asegúrate de cambiar 'NombreDeTuArchivo.csv' al nombre real de tu archivo
+ruta_del_archivo = 'D:\\coro\\DISTRITAL\\Trabajos\\TuTarea\\C# problema de porcentajes\\train.csv'
+tabla = pd.read_csv(ruta_del_archivo)
+
+# Seleccionar características relevantes
+columnas_relevantes = ['Pclass', 'Sex', 'Fare', 'PassengerId', 'SibSp']
+X = tabla[columnas_relevantes]
+y = tabla['Survived']
+
+# Convertir la columna 'Sex' a variables dummy (One-Hot Encoding)
+X = pd.get_dummies(X, columns=['Sex'], drop_first=True)
+
+# Manejar NaN (usando la media)
+X['Fare'].fillna(X['Fare'].mean(), inplace=True)
+
+# Dividir los datos
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Crear un modelo de regresión logística
+modelo = LogisticRegression(max_iter=1000)
+
+# Realizar validación cruzada
+puntuaciones_cruzadas = cross_val_score(modelo, X, y, cv=5, scoring='accuracy')
+print(f'Puntuaciones de validación cruzada: {puntuaciones_cruzadas}')
+
+# Entrenar el modelo en los datos de entrenamiento
+modelo.fit(X_train, y_train)
+
+# Realizar predicciones en el conjunto de prueba
+predicciones = modelo.predict(X_test)
+
+# Calcular la exactitud en el conjunto de prueba
+exactitud = accuracy_score(y_test, predicciones)
+print(f'Exactitud del modelo en el conjunto de prueba: {exactitud:.2%}')
+
+----
+
+
++*Out[7]:*+
+----
+Puntuaciones de validación cruzada: [0.81005587 0.79775281 0.78089888 0.7752809  0.80898876]
+Exactitud del modelo en el conjunto de prueba: 78.77%
+----
+
+
++*In[10]:*+
+[source, ipython3]
+----
+# Calcular el porcentaje de error
+error = 1 - exactitud
+print(f'Porcentaje de error del modelo en el conjunto de prueba: {error:.2%}')
+----
+
+
++*Out[10]:*+
+----
+Porcentaje de error del modelo en el conjunto de prueba: 21.23%
+----
+
+
++*In[12]:*+
+[source, ipython3]
+----
+from sklearn.metrics import accuracy_score, cohen_kappa_score
+
+# Calcular el coeficiente de Cohen's Kappa
+kappa = cohen_kappa_score(y_test, predicciones)
+print(f'Coeficiente de Cohen\'s Kappa: {kappa:.2f}')
+----
+
+
++*Out[12]:*+
+----
+Coeficiente de Cohen's Kappa: 0.56
+----
